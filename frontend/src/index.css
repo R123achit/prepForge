@@ -1,0 +1,236 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-gray-900;
+  }
+  
+  p, span, div {
+    @apply text-gray-700;
+  }
+  
+  label {
+    @apply text-gray-700;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-500 shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+  }
+  
+  .btn-danger {
+    @apply bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 focus:ring-red-500 shadow-lg;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200 hover:shadow-md;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .badge-success {
+    @apply bg-green-100 text-green-800 border border-green-200;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+  }
+  
+  .badge-info {
+    @apply bg-blue-100 text-blue-800 border border-blue-200;
+  }
+}
+
+/* Dark mode overrides - using regular CSS for dark mode variants */
+.dark body {
+  background-color: #0a0e27;
+  color: #e5e7eb;
+}
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #f9fafb;
+}
+
+.dark p,
+.dark span,
+.dark div {
+  color: #d1d5db;
+}
+
+.dark label {
+  color: #d1d5db;
+}
+
+.dark a {
+  color: #60a5fa;
+}
+
+.dark a:hover {
+  color: #93c5fd;
+}
+
+.dark .btn-secondary {
+  background-color: #374151;
+  color: #f3f4f6;
+}
+
+.dark .btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+.dark .card {
+  background-color: #121633;
+  border-color: #1e2442;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  color: #e5e7eb;
+}
+
+.dark .card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+.dark .card h1,
+.dark .card h2,
+.dark .card h3,
+.dark .card h4,
+.dark .card h5,
+.dark .card h6 {
+  color: #f9fafb;
+}
+
+.dark .card p,
+.dark .card span,
+.dark .card div {
+  color: #d1d5db;
+}
+
+.dark .input {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .input::placeholder {
+  color: #6b7280;
+}
+
+.dark .input:focus {
+  border-color: transparent;
+}
+
+.dark .badge-success {
+  background-color: rgba(6, 78, 59, 0.3);
+  color: #34d399;
+  border-color: rgba(6, 78, 59, 0.5);
+}
+
+.dark .badge-warning {
+  background-color: rgba(120, 53, 15, 0.3);
+  color: #fbbf24;
+  border-color: rgba(120, 53, 15, 0.5);
+}
+
+.dark .badge-info {
+  background-color: rgba(30, 58, 138, 0.3);
+  color: #60a5fa;
+  border-color: rgba(30, 58, 138, 0.5);
+}
+
+.dark .btn-primary {
+  background: linear-gradient(to right, #0ea5e9, #0284c7);
+  box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2);
+}
+
+.dark .btn-primary:hover {
+  background: linear-gradient(to right, #0284c7, #0369a1);
+}
+
+/* Text color utilities for dark mode */
+.dark .text-gray-900 {
+  color: #f9fafb;
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6;
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af;
+}
+
+.dark .text-gray-400 {
+  color: #6b7280;
+}
+
+/* Background utilities for dark mode */
+.dark .bg-gray-50 {
+  background-color: #0a0e27;
+}
+
+.dark .bg-gray-100 {
+  background-color: #121633;
+}
+
+.dark .bg-gray-200 {
+  background-color: #1e2442;
+}
+
+.dark .bg-white {
+  background-color: #121633;
+}
+
+/* Border utilities for dark mode */
+.dark .border-gray-200 {
+  border-color: #1e2442;
+}
+
+.dark .border-gray-300 {
+  border-color: #374151;
+}
+
+/* Hover states */
+.dark .hover\:bg-gray-100:hover {
+  background-color: #1e2442;
+}
+
+.dark .hover\:bg-gray-200:hover {
+  background-color: #374151;
+}
+
+.dark .hover\:text-primary-600:hover {
+  color: #38bdf8;
+}
