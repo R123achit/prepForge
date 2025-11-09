@@ -688,11 +688,13 @@ export default function InterviewRoomPage() {
 
   const endInterview = async () => {
     try {
-      if (interview?.id) {
-        await api.put(`/live-interviews/${interview.id}/complete`);
+      if (interview?.id || interview?._id) {
+        const interviewId = interview.id || interview._id;
+        await api.put(`/live-interviews/${interviewId}/complete`, {});
       }
     } catch (err) {
       console.error('Failed to end interview:', err);
+      console.error('Error details:', err.response?.data);
     } finally {
       cleanup();
       navigate('/live-interview');
