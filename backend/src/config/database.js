@@ -2,6 +2,13 @@ import mongoose from 'mongoose';
 
 const connectDB = async () => {
   try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is not defined. Please set it in your environment.');
+    }
+
+    console.log('🔄 Connecting to MongoDB...');
+    console.log('📍 URI:', process.env.MONGODB_URI.replace(/:\/\/([^:]+):([^@]+)@/, '://***:***@'));
+    
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       // These options are no longer needed in Mongoose 6+
       // useNewUrlParser: true,
