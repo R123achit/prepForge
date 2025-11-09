@@ -137,9 +137,10 @@ io.on('connection', (socket) => {
     socket.to(targetSocketId).emit('ice-candidate', { candidate, socketId: socket.id });
   });
 
-  socket.on('chat-message', ({ roomId, message, userName }) => {
+  socket.on('chat-message', ({ roomId, message, userName, senderId }) => {
     console.log(`Chat message in room ${roomId} from ${userName}`);
-    io.to(roomId).emit('chat-message', { message, userName, timestamp: Date.now() });
+    // Broadcast to room with sender ID so clients can filter their own messages
+    io.to(roomId).emit('chat-message', { message, userName, timestamp: Date.now(), senderId });
   });
 
   socket.on('disconnect', () => {
