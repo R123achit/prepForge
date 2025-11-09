@@ -3,16 +3,17 @@ import mongoose from 'mongoose';
 const connectDB = async () => {
   try {
     if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI environment variable is not defined. Please set it in your environment.');
+      console.error('❌ MONGODB_URI is not defined!');
+      console.error('Please set MONGODB_URI in Render Environment Variables');
+      throw new Error('MONGODB_URI environment variable is not defined.');
     }
 
     console.log('🔄 Connecting to MongoDB...');
-    console.log('📍 URI:', process.env.MONGODB_URI.replace(/:\/\/([^:]+):([^@]+)@/, '://***:***@'));
+    console.log('📍 Connection string format check:', process.env.MONGODB_URI.substring(0, 20) + '...');
     
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      // These options are no longer needed in Mongoose 6+
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
@@ -39,7 +40,16 @@ const connectDB = async () => {
     });
 
   } catch (error) {
-    console.error('❌ MongoDB connection failed:', error.message);
+    console.error('❌ MongoDB connection failed!');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    if (error.reason) {
+      console.error('Error reason:', error.reason);
+    }
+    console.error('\n💡 Troubleshooting:');
+    console.error('1. Check if MONGODB_URI is set in Render Environment Variables');
+    console.error('2. Verify MongoDB Atlas allows connections from 0.0.0.0/0');
+    console.error('3. Check if password has special characters (use URL encoding)');
     process.exit(1);
   }
 };
