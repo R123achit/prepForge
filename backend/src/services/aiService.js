@@ -13,14 +13,14 @@ class AIService {
 
   async generateCompletion(prompt, options = {}) {
     try {
-      // Prioritize Groq (free & fast), then OpenAI
-      if (this.groqApiKey && this.groqApiKey.trim()) {
-        return await this.groqCompletion(prompt, options);
-      } else if (this.openaiApiKey && this.openaiApiKey.trim()) {
+      // Prioritize OpenAI, then Groq
+      if (this.openaiApiKey && this.openaiApiKey.trim()) {
         return await this.openaiCompletion(prompt, options);
+      } else if (this.groqApiKey && this.groqApiKey.trim()) {
+        return await this.groqCompletion(prompt, options);
       } else {
         // Fallback mock response if no API keys configured
-        console.warn('⚠️  No AI API keys configured. Get FREE Groq API key: https://console.groq.com/');
+        console.warn('⚠️  No AI API keys configured. Using intelligent mock responses.');
         return this.mockCompletion(prompt);
       }
     } catch (error) {
