@@ -101,13 +101,30 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Socket.IO connection handling
-const rooms = new Map();
+const rooms = new Map(); // roomId -> Set of socket IDs
+const userSockets = new Map(); // userId -> socket ID
 
 io.on('connection', (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
   socket.on('join-room', ({ roomId, userId, userName }) => {
     console.log(`${userName} (${userId}) joining room: ${roomId}`);
+    
+    // Disconnect old socket for this user if exists
+    if (userSockets.has(userId)) {
+      const oldSocketId = userSockets.get(userId);
+      const oldSocket = io.sockets.sockets.get(oldSocketId);
+      if (oldSocket && oldSocketId !== socket.id) {
+        console.log(`⚠️ Disconnecting old socket ${oldSocketId} for user ${userId}`);
+        oldSocket.disconnect(true);
+      }
+    }
+    
+    // Track this user's socket
+    userSockets.set(userId, socket.id);
+    socket.userId = userId;
+    socket.userName = userName;
+    
     socket.join(roomId);
     
     if (!rooms.has(roomId)) {
@@ -145,6 +162,12 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`);
+    
+    // Remove from user tracking
+    if (socket.userId && userSockets.get(socket.userId) === socket.id) {
+      userSockets.delete(socket.userId);
+    }
+    
     rooms.forEach((participants, roomId) => {
       if (participants.has(socket.id)) {
         participants.delete(socket.id);

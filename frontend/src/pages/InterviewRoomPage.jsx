@@ -208,18 +208,26 @@ export default function InterviewRoomPage() {
         role: userId === interview?.interviewer?.id ? 'Interviewer' : 'Candidate'
       });
       
-      // Create and send offer to the new user
-      await createOffer(socketId);
+      // DO NOT create offer here - let the new user create the offer
+      // This prevents both sides from creating offers simultaneously
+      console.log('✅ Waiting for offer from new user');
     });
 
     // Receive existing room users - SECOND USER TO JOIN
     socket.on('room-users', async (participants) => {
       console.log('📊 Room participants:', participants);
-      if (participants.length > 0) {
+      
+      // Connect to the FIRST participant only (1-to-1 connection)
+      if (participants.length >= 1) {
         const existingPeerSocketId = participants[0];
         remoteSocketIdRef.current = existingPeerSocketId;
         console.log('🔄 I am second to join, creating offer to existing peer:', existingPeerSocketId);
-        // Second user creates offer to first user
+        
+        if (participants.length > 1) {
+          console.warn('⚠️ Multiple old connections detected, connecting to first one only');
+        }
+        
+        // Only the second user creates the offer - this prevents collision
         await createOffer(existingPeerSocketId);
       }
     });
@@ -227,38 +235,61 @@ export default function InterviewRoomPage() {
     // Receive WebRTC offer
     socket.on('offer', async ({ offer, socketId }) => {
       console.log('📥 Received offer from:', socketId);
-      remoteSocketIdRef.current = socketId;
-      await handleOffer(offer, socketId);
+      
+      // Only accept offer if we don't have a peer or it's from our peer
+      if (!remoteSocketIdRef.current || remoteSocketIdRef.current === socketId) {
+        remoteSocketIdRef.current = socketId;
+        await handleOffer(offer, socketId);
+      } else {
+        console.log('⚠️ Ignoring offer from unexpected peer:', socketId);
+      }
     });
 
     // Receive WebRTC answer
-    socket.on('answer', async ({ answer }) => {
-      console.log('📥 Received answer');
-      await handleAnswer(answer);
+    socket.on('answer', async ({ answer, socketId }) => {
+      console.log('📥 Received answer from:', socketId);
+      
+      // Only accept answer from our connected peer
+      if (socketId === remoteSocketIdRef.current) {
+        await handleAnswer(answer);
+      } else {
+        console.log('⚠️ Ignoring answer from unexpected peer:', socketId);
+      }
     });
 
     // Receive ICE candidate
-    socket.on('ice-candidate', async ({ candidate }) => {
-      console.log('🧊 Received ICE candidate');
-      await handleIceCandidate(candidate);
+    socket.on('ice-candidate', async ({ candidate, socketId }) => {
+      console.log('🧊 Received ICE candidate from:', socketId);
+      
+      // Only accept ICE candidates from our connected peer
+      if (socketId === remoteSocketIdRef.current) {
+        await handleIceCandidate(candidate);
+      } else {
+        console.log('⚠️ Ignoring ICE candidate from unexpected peer:', socketId);
+      }
     });
 
     // User left
     socket.on('user-left', ({ socketId }) => {
       console.log('❌ User left:', socketId);
-      setRemoteParticipant(null);
-      setConnectionStatus('connecting');
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = null;
+      
+      // Only handle if it's our connected peer
+      if (socketId === remoteSocketIdRef.current) {
+        setRemoteParticipant(null);
+        setConnectionStatus('connecting');
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = null;
+        }
+        // Reset peer connection for clean reconnection
+        if (peerConnectionRef.current) {
+          peerConnectionRef.current.close();
+          peerConnectionRef.current = null;
+        }
+        isNegotiatingRef.current = false;
+        makingOfferRef.current = false;
+        queuedCandidatesRef.current = [];
+        remoteSocketIdRef.current = null;
       }
-      // Reset peer connection for clean reconnection
-      if (peerConnectionRef.current) {
-        peerConnectionRef.current.close();
-        peerConnectionRef.current = null;
-      }
-      isNegotiatingRef.current = false;
-      makingOfferRef.current = false;
-      queuedCandidatesRef.current = [];
     });
 
     // Chat messages - only from other participants
@@ -495,19 +526,28 @@ export default function InterviewRoomPage() {
 
     // Add local stream tracks to peer connection
     if (localStreamRef.current) {
+      console.log('🎥 Adding local tracks to peer connection');
       localStreamRef.current.getTracks().forEach(track => {
         if (localStreamRef.current) {
+          console.log(`  ➕ Adding ${track.kind} track:`, track.label);
           pc.addTrack(track, localStreamRef.current);
         }
       });
+    } else {
+      console.error('❌ No local stream available to add to peer connection');
     }
 
     // Handle incoming remote stream
     pc.ontrack = (event) => {
-      console.log('📹 Received remote track');
+      console.log('📹 Received remote track:', event.track.kind);
+      console.log('📹 Remote streams:', event.streams.length);
       if (remoteVideoRef.current && event.streams[0]) {
+        console.log('✅ Setting remote video stream');
         remoteVideoRef.current.srcObject = event.streams[0];
+        remoteVideoRef.current.play().catch(e => console.error('Remote video play error:', e));
         setConnectionStatus('connected');
+      } else {
+        console.error('❌ Remote video ref or stream not available');
       }
     };
 
