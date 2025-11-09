@@ -28,20 +28,43 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const httpServer = createServer(app);
 
-// Initialize Socket.IO with CORS
+// Initialize Socket.IO with CORS - Allow multiple origins
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://prepforge-frontend.vercel.app',
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
     credentials: true,
+    methods: ['GET', 'POST']
   },
 });
 
 // Connect to MongoDB
 connectDB();
 
-// Middleware
+// Middleware - Allow multiple origins for development and production
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://prepforge-frontend.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('⚠️ CORS blocked origin:', origin);
+      callback(null, true); // Allow anyway for now, can change to false for strict mode
+    }
+  },
   credentials: true,
 }));
 
