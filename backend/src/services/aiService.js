@@ -1,27 +1,33 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // AI Service using Groq API (you can switch to OpenAI if needed)
 class AIService {
   constructor() {
-    this.groqApiKey = process.env.GROQ_API_KEY;
-    this.openaiApiKey = process.env.OPENAI_API_KEY;
-    this.useGroq = !!this.groqApiKey;
+    this.groqApiKey = process.env.GROQ_API_KEY?.trim();
+    this.openaiApiKey = process.env.OPENAI_API_KEY?.trim();
   }
 
   async generateCompletion(prompt, options = {}) {
     try {
-      if (this.useGroq && this.groqApiKey) {
-        return await this.groqCompletion(prompt, options);
-      } else if (this.openaiApiKey) {
+      // Prioritize OpenAI if available, then Groq
+      if (this.openaiApiKey && this.openaiApiKey.trim()) {
         return await this.openaiCompletion(prompt, options);
+      } else if (this.groqApiKey && this.groqApiKey.trim()) {
+        return await this.groqCompletion(prompt, options);
       } else {
         // Fallback mock response if no API keys configured
         console.warn('No AI API keys configured, using mock responses');
         return this.mockCompletion(prompt);
       }
     } catch (error) {
-      console.error('AI Service Error:', error.message);
-      throw new Error('Failed to generate AI response');
+      console.error('AI Service Error:', error.response?.data || error.message);
+      // Fallback to mock on API errors
+      console.warn('Falling back to mock responses due to API error');
+      return this.mockCompletion(prompt);
     }
   }
 
