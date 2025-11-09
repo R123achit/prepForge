@@ -435,6 +435,13 @@ export default function InterviewRoomPage() {
 
   const initializeMedia = async () => {
     try {
+      console.log('🎥 Requesting camera and microphone access...');
+      
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Your browser does not support camera/microphone access. Please use Chrome, Firefox, or Safari.');
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
@@ -448,15 +455,37 @@ export default function InterviewRoomPage() {
         }
       });
       
+      console.log('✅ Media stream obtained:', stream.getTracks().map(t => `${t.kind}: ${t.label}`));
+      
       localStreamRef.current = stream;
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
+        // Ensure video plays
+        localVideoRef.current.play().catch(e => console.error('Video play error:', e));
       }
       setIsInterviewStarted(true);
+      console.log('✅ Local video initialized');
     } catch (err) {
-      console.error('Failed to get media:', err);
-      setError('Failed to access camera/microphone. Please check permissions.');
+      console.error('❌ Failed to get media:', err);
+      let errorMessage = 'Failed to access camera/microphone. ';
+      
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        errorMessage += 'Please allow camera and microphone permissions in your browser settings.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        errorMessage += 'No camera or microphone found. Please connect a device.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        errorMessage += 'Camera is already in use by another application.';
+      } else if (err.name === 'OverconstrainedError') {
+        errorMessage += 'Camera does not meet the required specifications.';
+      } else if (err.name === 'SecurityError') {
+        errorMessage += 'Camera access is blocked. Please use HTTPS.';
+      } else {
+        errorMessage += err.message || 'Unknown error occurred.';
+      }
+      
+      setError(errorMessage);
       setConnectionStatus('disconnected');
+      alert(errorMessage);
     }
   };
 
