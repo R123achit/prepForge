@@ -89,21 +89,21 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Welcome Section */}
-      <div className="card">
-        <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-2xl border border-blue-500/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
               Welcome back, {user?.firstName}! 👋
             </h1>
-            <p className="text-gray-600">
+            <p className="text-blue-100 text-sm sm:text-base">
               {user?.role === 'INTERVIEWER' 
                 ? 'Manage interview requests and conduct sessions with candidates.'
                 : user?.role === 'CANDIDATE'
@@ -111,11 +111,11 @@ export default function DashboardPage() {
                 : 'Manage your interviews and track your progress from both perspectives.'}
             </p>
           </div>
-          <div className="text-right">
-            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+          <div className="text-left sm:text-right">
+            <span className={`px-4 py-2 rounded-full text-sm font-semibold inline-block ${
               user?.role === 'INTERVIEWER' 
-                ? 'bg-purple-100 text-purple-800' 
-                : 'bg-blue-100 text-blue-800'
+                ? 'bg-purple-500/20 text-purple-200 border border-purple-400/30' 
+                : 'bg-blue-500/20 text-blue-200 border border-blue-400/30'
             }`}>
               {user?.role === 'INTERVIEWER' ? '👨‍🏫 Interviewer' : '👤 Candidate'}
             </span>
@@ -126,100 +126,104 @@ export default function DashboardPage() {
 
 
       {/* Stats Overview - Role Specific */}
-      <div className="grid md:grid-cols-4 gap-6">
-        <div className="card">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-blue-500/20 hover:border-blue-400/40 transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">
+              <p className="text-blue-200 text-xs sm:text-sm font-medium mb-1">
                 {user?.role === 'INTERVIEWER' ? 'Sessions to Conduct' : 'My Interviews'}
               </p>
-              <p className="text-3xl font-bold text-gray-900">{dashboardData?.stats.totalUpcoming || 0}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData?.stats.totalUpcoming || 0}</p>
             </div>
-            <Calendar className="w-12 h-12 text-primary-600 opacity-20" />
+            <Calendar className="w-10 h-10 sm:w-12 sm:h-12 text-blue-400 opacity-30" />
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-green-500/20 hover:border-green-400/40 transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">
+              <p className="text-green-200 text-xs sm:text-sm font-medium mb-1">
                 {user?.role === 'INTERVIEWER' ? 'Conducted' : 'Completed'}
               </p>
-              <p className="text-3xl font-bold text-gray-900">{dashboardData?.stats.totalCompleted || 0}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData?.stats.totalCompleted || 0}</p>
             </div>
-            <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
+            <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-400 opacity-30" />
           </div>
         </div>
 
         {user?.role === 'INTERVIEWER' ? (
-          <div className="card">
+          <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-orange-500/20 hover:border-orange-400/40 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Pending Requests</p>
-                <p className="text-3xl font-bold text-gray-900">{dashboardData?.stats.pendingRequests || 0}</p>
+                <p className="text-orange-200 text-xs sm:text-sm font-medium mb-1">Pending Requests</p>
+                <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData?.stats.pendingRequests || 0}</p>
               </div>
-              <Bell className="w-12 h-12 text-orange-600 opacity-20" />
+              <Bell className="w-10 h-10 sm:w-12 sm:h-12 text-orange-400 opacity-30" />
             </div>
           </div>
         ) : (
-          <div className="card">
+          <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-yellow-500/20 hover:border-yellow-400/40 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Awaiting Confirmation</p>
-                <p className="text-3xl font-bold text-gray-900">{dashboardData?.stats.pendingRequests || 0}</p>
+                <p className="text-yellow-200 text-xs sm:text-sm font-medium mb-1">Awaiting Confirmation</p>
+                <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData?.stats.pendingRequests || 0}</p>
               </div>
-              <Clock className="w-12 h-12 text-yellow-600 opacity-20" />
+              <Clock className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-400 opacity-30" />
             </div>
           </div>
         )}
 
-        <div className="card">
+        <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-purple-500/20 hover:border-purple-400/40 transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Today's Sessions</p>
-              <p className="text-3xl font-bold text-gray-900">{dashboardData?.stats.todayTotal || 0}</p>
+              <p className="text-purple-200 text-xs sm:text-sm font-medium mb-1">Today's Sessions</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData?.stats.todayTotal || 0}</p>
             </div>
-            <Clock className="w-12 h-12 text-secondary-600 opacity-20" />
+            <Clock className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400 opacity-30" />
           </div>
         </div>
       </div>
 
       {/* Quick Actions - Role Specific */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <Link
           to="/ai-interview"
-          className="card hover:shadow-lg transition-shadow cursor-pointer group"
+          className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-blue-500/20 hover:border-blue-400/50 hover:shadow-2xl transition-all cursor-pointer group"
         >
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-primary-100 rounded-lg group-hover:bg-primary-200 transition-colors">
-              <BrainCircuit className="w-8 h-8 text-primary-600" />
+          <div className="flex items-start space-x-3 sm:space-x-4">
+            <div className="p-3 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors border border-blue-400/30">
+              <BrainCircuit className="w-7 h-7 sm:w-8 sm:h-8 text-blue-300" />
             </div>
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <div className="flex-1">
+              <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
                 {user?.role === 'INTERVIEWER' ? 'Practice with AI' : 'Start AI Interview'}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-blue-100 text-sm sm:text-base">
                 {user?.role === 'INTERVIEWER' 
                   ? 'Improve your interviewing skills with AI practice sessions.'
                   : 'Practice with our AI interviewer and get instant feedback.'}
               </p>
+              <span className="inline-block mt-3 text-blue-300 font-semibold group-hover:text-blue-200 transition-colors">
+                Get Started →
+              </span>
             </div>
           </div>
         </Link>
 
         <Link
           to="/live-interview"
-          className="card hover:shadow-lg transition-all duration-200 cursor-pointer group border-2 border-transparent hover:border-secondary-300"
+          className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border-2 border-blue-500/30 hover:border-blue-400/60 hover:shadow-2xl transition-all cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-start space-x-4">
-            <div className="p-4 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-xl group-hover:from-secondary-200 group-hover:to-secondary-300 transition-all duration-200 shadow-sm">
-              <Video className="w-8 h-8 text-secondary-600" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="flex items-start space-x-3 sm:space-x-4 relative z-10">
+            <div className="p-3 sm:p-4 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all shadow-sm border border-blue-400/30">
+              <Video className="w-7 h-7 sm:w-8 sm:h-8 text-blue-300" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-secondary-700 transition-colors">
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-blue-200 transition-colors">
                 {user?.role === 'INTERVIEWER' ? 'Interview Requests' : 'Schedule Interview'}
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <p className="text-blue-100 text-sm sm:text-base leading-relaxed">
                 {user?.role === 'INTERVIEWER'
                   ? 'View and manage pending interview requests from candidates.'
                   : 'Book a session with an experienced interviewer.'}
@@ -231,7 +235,7 @@ export default function DashboardPage() {
                 </span>
               )}
               {user?.role === 'CANDIDATE' && (
-                <span className="inline-block mt-3 text-secondary-600 font-semibold group-hover:underline">
+                <span className="inline-block mt-3 text-blue-300 font-semibold group-hover:text-blue-200 transition-colors">
                   Schedule Now →
                 </span>
               )}
@@ -243,26 +247,26 @@ export default function DashboardPage() {
       {/* Resume Tools Section - Only for Candidates */}
       {user?.role === 'CANDIDATE' && (
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Resume Tools</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+          <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">Resume Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <Link
               to="/resume-maker"
-              className="card hover:shadow-lg transition-shadow cursor-pointer group"
+              className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-green-500/20 hover:border-green-400/50 hover:shadow-2xl transition-all cursor-pointer group"
             >
-              <div className="flex items-start space-x-4">
-                <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-start space-x-3 sm:space-x-4">
+                <div className="p-3 bg-green-500/20 rounded-lg group-hover:bg-green-500/30 transition-colors border border-green-400/30">
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <div className="flex-1">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
                     Resume Maker
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-green-100 text-sm sm:text-base">
                     Create a professional resume with our easy-to-use builder. Choose from multiple templates.
                   </p>
-                  <span className="inline-block mt-3 text-green-600 font-medium group-hover:underline">
+                  <span className="inline-block mt-3 text-green-300 font-medium group-hover:text-green-200 transition-colors">
                     Create Resume →
                   </span>
                 </div>
@@ -271,22 +275,22 @@ export default function DashboardPage() {
 
             <Link
               to="/resume-matcher"
-              className="card hover:shadow-lg transition-shadow cursor-pointer group"
+              className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-xl border border-purple-500/20 hover:border-purple-400/50 hover:shadow-2xl transition-all cursor-pointer group"
             >
-              <div className="flex items-start space-x-4">
-                <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-start space-x-3 sm:space-x-4">
+                <div className="p-3 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/30 transition-colors border border-purple-400/30">
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                   </svg>
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <div className="flex-1">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
                     Resume Matcher
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-purple-100 text-sm sm:text-base">
                     Upload your resume and get AI-powered analysis with job role matching and improvement suggestions.
                   </p>
-                  <span className="inline-block mt-3 text-purple-600 font-medium group-hover:underline">
+                  <span className="inline-block mt-3 text-purple-300 font-medium group-hover:text-purple-200 transition-colors">
                     Analyze Resume →
                   </span>
                 </div>
@@ -299,66 +303,77 @@ export default function DashboardPage() {
       {/* Candidate View */}
       {viewMode === 'candidate' && dashboardData && (
         <div className="space-y-6">
-          <div className="card">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
-              <User className="w-6 h-6 mr-2" />
-              ({dashboardData.candidate.total} total)
+          <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-2xl border border-blue-500/20">
+            <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6 flex items-center flex-wrap gap-2">
+              <User className="w-5 h-5 sm:w-6 sm:h-6" />
+              <span>My Interviews</span>
+              <span className="text-blue-300 text-base sm:text-lg">({dashboardData.candidate.total} total)</span>
             </h2>
 
             {dashboardData.candidate.today.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">📅 Today's Interviews</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  📅 Today's Interviews
+                </h3>
                 <div className="space-y-3">
-                  {dashboardData.candidate.today.map((interview) => (
-                    <div 
-                      key={interview.id}
-                      className={`border-2 rounded-lg p-4 ${getUrgencyColor(interview.scheduledAt)}`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold text-lg">{interview.topic}</h4>
-                          <p className="text-sm opacity-80">
-                            With: {interview.interviewer?.firstName} {interview.interviewer?.lastName}
-                          </p>
-                          <p className="text-sm mt-1">
-                            {new Date(interview.scheduledAt).toLocaleTimeString()} • {interview.duration} min • {interview.interviewType}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-lg">
-                            {getTimeUntil(interview.scheduledAt)}
+                  {dashboardData.candidate.today.map((interview) => {
+                    const timeUntil = getTimeUntil(interview.scheduledAt);
+                    const isUrgent = timeUntil.includes('min') || timeUntil === 'Started';
+                    return (
+                      <div 
+                        key={interview.id}
+                        className={`border-2 rounded-xl p-4 sm:p-5 ${
+                          isUrgent 
+                            ? 'bg-red-500/10 border-red-400/50' 
+                            : 'bg-yellow-500/10 border-yellow-400/50'
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-base sm:text-lg text-white">{interview.topic}</h4>
+                            <p className="text-xs sm:text-sm text-blue-200 mt-1">
+                              With: {interview.interviewer?.firstName} {interview.interviewer?.lastName}
+                            </p>
+                            <p className="text-xs sm:text-sm text-blue-200 mt-1">
+                              {new Date(interview.scheduledAt).toLocaleTimeString()} • {interview.duration} min • {interview.interviewType}
+                            </p>
                           </div>
-                          <Link
-                            to={`/interview-room/${interview.id}`}
-                            className="mt-2 inline-block bg-white px-4 py-2 rounded-lg font-semibold shadow-sm hover:shadow-md transition-shadow"
-                          >
-                            🎥 Join Room
-                          </Link>
+                          <div className="text-left sm:text-right flex sm:flex-col items-center sm:items-end gap-3">
+                            <div className={`font-bold text-base sm:text-lg ${isUrgent ? 'text-red-300' : 'text-yellow-300'}`}>
+                              {timeUntil}
+                            </div>
+                            <Link
+                              to={`/interview-room/${interview.id}`}
+                              className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
+                            >
+                              🎥 Join Room
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {dashboardData.candidate.upcoming.length > 0 ? (
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Upcoming Interviews</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-3">Upcoming Interviews</h3>
                 <div className="space-y-3">
                   {dashboardData.candidate.upcoming.filter(i => !dashboardData.candidate.today.includes(i)).map((interview) => (
-                    <div key={interview.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold text-lg text-gray-900">{interview.topic}</h4>
-                          <p className="text-sm text-gray-600">
+                    <div key={interview.id} className="border border-blue-500/30 bg-blue-500/5 rounded-xl p-4 sm:p-5 hover:border-blue-400/50 hover:bg-blue-500/10 transition-all">
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-base sm:text-lg text-white">{interview.topic}</h4>
+                          <p className="text-xs sm:text-sm text-blue-200 mt-1">
                             With: {interview.interviewer?.firstName} {interview.interviewer?.lastName}
                           </p>
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-xs sm:text-sm text-blue-300 mt-1">
                             {new Date(interview.scheduledAt).toLocaleDateString()} at {new Date(interview.scheduledAt).toLocaleTimeString()} • {interview.duration} min
                           </p>
                         </div>
-                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-green-500/20 text-green-300 border border-green-400/30 rounded-full text-xs sm:text-sm font-medium self-start">
                           Confirmed
                         </span>
                       </div>
@@ -368,9 +383,9 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No upcoming interviews scheduled.</p>
-                <Link to="/live-interview" className="btn btn-primary mt-4 inline-block">
+                <Calendar className="w-12 h-12 sm:w-16 sm:h-16 text-blue-400 opacity-50 mx-auto mb-4" />
+                <p className="text-blue-200 mb-4">No upcoming interviews scheduled.</p>
+                <Link to="/live-interview" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all inline-block">
                   Schedule Interview
                 </Link>
               </div>
@@ -382,56 +397,57 @@ export default function DashboardPage() {
       {/* Interviewer View */}
       {viewMode === 'interviewer' && dashboardData && (
         <div className="space-y-6">
-          <div className="card">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center">
-              <UserCheck className="w-6 h-6 mr-2" />
-              ({dashboardData.interviewer.total} total)
+          <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-2xl border border-blue-500/20">
+            <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6 flex flex-wrap items-center gap-2">
+              <UserCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+              <span>Interview Sessions</span>
+              <span className="text-blue-300 text-base sm:text-lg">({dashboardData.interviewer.total} total)</span>
               {dashboardData.interviewer.averageRating > 0 && (
-                <span className="ml-auto flex items-center text-lg">
-                  <TrendingUp className="w-5 h-5 mr-1 text-green-600" />
-                  <span className="font-bold">{dashboardData.interviewer.averageRating.toFixed(1)}</span>
-                  <span className="text-gray-500 text-sm ml-1">/5.0</span>
+                <span className="ml-auto flex items-center text-base sm:text-lg bg-green-500/20 px-3 py-1 rounded-full border border-green-400/30">
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-1 text-green-300" />
+                  <span className="font-bold text-green-200">{dashboardData.interviewer.averageRating.toFixed(1)}</span>
+                  <span className="text-green-300 text-xs sm:text-sm ml-1">/5.0</span>
                 </span>
               )}
             </h2>
 
             {dashboardData.interviewer.upcoming.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <Bell className="w-5 h-5 mr-2" />
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                   Pending Requests ({dashboardData.interviewer.upcoming.length})
                 </h3>
                 <div className="space-y-3">
                   {dashboardData.interviewer.upcoming.map((interview) => (
-                    <div key={interview.id} className="border-2 border-orange-300 bg-orange-50 rounded-lg p-4">
-                      <div className="flex justify-between items-start">
+                    <div key={interview.id} className="border-2 border-orange-400/50 bg-orange-500/10 rounded-xl p-4 sm:p-5">
+                      <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded">NEW</span>
-                            <h4 className="font-semibold text-lg text-gray-900">{interview.topic}</h4>
+                          <div className="flex items-center space-x-2 mb-2 flex-wrap gap-2">
+                            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">NEW</span>
+                            <h4 className="font-semibold text-base sm:text-lg text-white">{interview.topic}</h4>
                           </div>
-                          <p className="text-sm text-gray-700">
-                            From: <span className="font-medium">{interview.candidate?.firstName} {interview.candidate?.lastName}</span>
-                            <span className="text-gray-500"> ({interview.candidate?.email})</span>
+                          <p className="text-xs sm:text-sm text-blue-200">
+                            From: <span className="font-medium text-white">{interview.candidate?.firstName} {interview.candidate?.lastName}</span>
+                            <span className="text-blue-300"> ({interview.candidate?.email})</span>
                           </p>
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-xs sm:text-sm text-blue-200 mt-1">
                             📅 {new Date(interview.scheduledAt).toLocaleDateString()} at {new Date(interview.scheduledAt).toLocaleTimeString()}
                           </p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-xs sm:text-sm text-blue-200">
                             ⏱️ {interview.duration} minutes • {interview.interviewType}
                           </p>
                         </div>
-                        <div className="flex flex-col space-y-2 ml-4">
+                        <div className="flex flex-row lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2 w-full lg:w-auto">
                           <button
                             onClick={() => handleAcceptInterview(interview.id)}
-                            className="flex items-center space-x-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                            className="flex-1 lg:flex-none flex items-center justify-center space-x-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm sm:text-base"
                           >
                             <CheckCircle className="w-4 h-4" />
                             <span>Accept</span>
                           </button>
                           <button
                             onClick={() => handleDeclineInterview(interview.id)}
-                            className="flex items-center space-x-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                            className="flex-1 lg:flex-none flex items-center justify-center space-x-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-semibold text-sm sm:text-base"
                           >
                             <XCircle className="w-4 h-4" />
                             <span>Decline</span>
@@ -446,46 +462,54 @@ export default function DashboardPage() {
 
             {dashboardData.interviewer.today.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Today's Interviews to Conduct</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-3">Today's Interviews to Conduct</h3>
                 <div className="space-y-3">
-                  {dashboardData.interviewer.today.map((interview) => (
-                    <div 
-                      key={interview.id}
-                      className={`border-2 rounded-lg p-4 ${getUrgencyColor(interview.scheduledAt)}`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold text-lg">{interview.topic}</h4>
-                          <p className="text-sm opacity-80">
-                            Candidate: {interview.candidate?.firstName} {interview.candidate?.lastName}
-                          </p>
-                          <p className="text-sm mt-1">
-                            {new Date(interview.scheduledAt).toLocaleTimeString()} • {interview.duration} min • {interview.interviewType}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-lg">
-                            {getTimeUntil(interview.scheduledAt)}
+                  {dashboardData.interviewer.today.map((interview) => {
+                    const timeUntil = getTimeUntil(interview.scheduledAt);
+                    const isUrgent = timeUntil.includes('min') || timeUntil === 'Started';
+                    return (
+                      <div 
+                        key={interview.id}
+                        className={`border-2 rounded-xl p-4 sm:p-5 ${
+                          isUrgent 
+                            ? 'bg-red-500/10 border-red-400/50' 
+                            : 'bg-yellow-500/10 border-yellow-400/50'
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-base sm:text-lg text-white">{interview.topic}</h4>
+                            <p className="text-xs sm:text-sm text-blue-200 mt-1">
+                              Candidate: {interview.candidate?.firstName} {interview.candidate?.lastName}
+                            </p>
+                            <p className="text-xs sm:text-sm text-blue-200 mt-1">
+                              {new Date(interview.scheduledAt).toLocaleTimeString()} • {interview.duration} min • {interview.interviewType}
+                            </p>
                           </div>
-                          <Link
-                            to={`/interview-room/${interview.id}`}
-                            className="mt-2 inline-block bg-white px-4 py-2 rounded-lg font-semibold shadow-sm hover:shadow-md transition-shadow"
-                          >
-                            🎥 Join Room
-                          </Link>
+                          <div className="text-left sm:text-right flex sm:flex-col items-center sm:items-end gap-3">
+                            <div className={`font-bold text-base sm:text-lg ${isUrgent ? 'text-red-300' : 'text-yellow-300'}`}>
+                              {timeUntil}
+                            </div>
+                            <Link
+                              to={`/interview-room/${interview.id}`}
+                              className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
+                            >
+                              🎥 Join Room
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {dashboardData.interviewer.upcoming.length === 0 && dashboardData.interviewer.today.length === 0 && (
               <div className="text-center py-12">
-                <UserCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No pending interview requests.</p>
-                <p className="text-gray-500 text-sm mt-2">You'll be notified when someone schedules an interview with you.</p>
+                <UserCheck className="w-12 h-12 sm:w-16 sm:h-16 text-blue-400 opacity-50 mx-auto mb-4" />
+                <p className="text-blue-200 mb-2">No pending interview requests.</p>
+                <p className="text-blue-300 text-xs sm:text-sm">You'll be notified when someone schedules an interview with you.</p>
               </div>
             )}
           </div>

@@ -71,12 +71,12 @@ export default function AIInterviewPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-          <BrainCircuit className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+      <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-2xl border border-blue-500/20">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white flex items-center gap-3 flex-wrap">
+          <BrainCircuit className="w-7 h-7 sm:w-8 sm:h-8 text-blue-300" />
           AI-Powered Mock Interview
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-blue-100 mt-2 text-sm sm:text-base">
           Practice with our AI interviewer and get instant feedback on your responses
         </p>
       </div>
@@ -84,20 +84,20 @@ export default function AIInterviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Form */}
         <div className="lg:col-span-2">
-          <div className="card">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Create New Interview</h2>
+          <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-2xl border border-blue-500/20">
+            <h2 className="text-lg sm:text-xl font-semibold text-white mb-6">Create New Interview</h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm border border-red-200 dark:border-red-800">{error}</div>
+                <div className="bg-red-500/10 text-red-300 p-3 rounded-lg text-sm border border-red-400/30">{error}</div>
               )}
 
               {/* Interview Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                <label className="block text-sm font-medium text-white mb-3">
                   Interview Type
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {interviewTypes.map((type) => {
                     const Icon = type.icon;
                     return (
@@ -105,17 +105,17 @@ export default function AIInterviewPage() {
                         key={type.value}
                         type="button"
                         onClick={() => setFormData({ ...formData, interviewType: type.value, topic: '' })}
-                        className={`p-4 rounded-lg border-2 transition-all ${
+                        className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                           formData.interviewType === type.value
-                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 dark:border-primary-400'
-                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800/50'
+                            ? 'border-blue-400 bg-blue-500/20'
+                            : 'border-blue-500/30 hover:border-blue-400/50 bg-blue-500/5'
                         }`}
                       >
-                        <Icon className={`w-6 h-6 mx-auto mb-2 ${
-                          formData.interviewType === type.value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'
+                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 ${
+                          formData.interviewType === type.value ? 'text-blue-300' : 'text-blue-400'
                         }`} />
-                        <div className={`text-sm font-medium ${
-                          formData.interviewType === type.value ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'
+                        <div className={`text-xs sm:text-sm font-medium ${
+                          formData.interviewType === type.value ? 'text-white' : 'text-blue-200'
                         }`}>{type.label}</div>
                       </button>
                     );
@@ -125,7 +125,7 @@ export default function AIInterviewPage() {
 
               {/* Topic */}
               <div>
-                <label htmlFor="topic" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="topic" className="block text-sm font-medium text-white mb-2">
                   Domain / Focus Area
                 </label>
                 <input
@@ -133,7 +133,7 @@ export default function AIInterviewPage() {
                   type="text"
                   value={formData.topic}
                   onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                  className="input"
+                  className="w-full px-4 py-3 bg-blue-900/30 border-2 border-blue-500/30 rounded-lg text-white placeholder-blue-300 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all"
                   placeholder="e.g., Machine Learning, DSA, Web Development, Data Analytics"
                   required
                 />
@@ -143,7 +143,7 @@ export default function AIInterviewPage() {
                       key={topic}
                       type="button"
                       onClick={() => setFormData({ ...formData, topic })}
-                      className="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-gray-700 dark:text-gray-300 transition-colors"
+                      className="px-3 py-1 text-xs bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 rounded-full text-blue-200 transition-colors"
                     >
                       {topic}
                     </button>
@@ -153,10 +153,10 @@ export default function AIInterviewPage() {
 
               {/* Difficulty */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                <label className="block text-sm font-medium text-white mb-3">
                   Difficulty Level
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {difficulties.map((diff) => (
                     <button
                       key={diff.value}
@@ -164,16 +164,16 @@ export default function AIInterviewPage() {
                       onClick={() => setFormData({ ...formData, difficulty: diff.value })}
                       className={`p-4 rounded-lg border-2 text-left transition-all ${
                         formData.difficulty === diff.value
-                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 dark:border-primary-400'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800/50'
+                          ? 'border-blue-400 bg-blue-500/20'
+                          : 'border-blue-500/30 hover:border-blue-400/50 bg-blue-500/5'
                       }`}
                     >
                       <div className={`font-medium ${
-                        formData.difficulty === diff.value ? 'text-primary-600 dark:text-primary-400' : 'text-gray-900 dark:text-white'
+                        formData.difficulty === diff.value ? 'text-blue-300' : 'text-white'
                       }`}>
                         {diff.label}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{diff.description}</div>
+                      <div className="text-xs text-blue-200 mt-1">{diff.description}</div>
                     </button>
                   ))}
                 </div>
@@ -181,18 +181,18 @@ export default function AIInterviewPage() {
 
               {/* Duration */}
               <div>
-                <label htmlFor="duration" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="duration" className="block text-sm font-medium text-white mb-2">
                   Duration (minutes)
                 </label>
                 <select
                   id="duration"
                   value={formData.duration}
                   onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
-                  className="input"
+                  className="w-full px-4 py-3 bg-blue-900/30 border-2 border-blue-500/30 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all"
                   required
                 >
                   {[15, 30, 45, 60, 90, 120].map((d) => (
-                    <option key={d} value={d}>{d}</option>
+                    <option key={d} value={d} className="bg-[#0a2540]">{d} minutes</option>
                   ))}
                 </select>
               </div>
@@ -201,7 +201,7 @@ export default function AIInterviewPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn btn-primary w-full flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
               >
                 {loading ? (
                   'Creating Interview...'
@@ -218,29 +218,29 @@ export default function AIInterviewPage() {
 
         {/* Info Sidebar */}
         <div className="space-y-4">
-          <div className="card">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">How it works</h3>
-            <ol className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div className="bg-gradient-to-br from-[#0a2540] to-[#1e3a5f] rounded-xl p-5 sm:p-6 shadow-2xl border border-blue-500/20">
+            <h3 className="font-semibold text-white mb-4 text-base sm:text-lg">How it works</h3>
+            <ol className="space-y-4 text-sm text-blue-100">
               <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full flex items-center justify-center text-xs font-bold">
                   1
                 </span>
                 <span>Select your interview type and topic</span>
               </li>
               <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full flex items-center justify-center text-xs font-bold">
                   2
                 </span>
                 <span>AI generates personalized questions</span>
               </li>
               <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full flex items-center justify-center text-xs font-bold">
                   3
                 </span>
                 <span>Answer questions in the interview room</span>
               </li>
               <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full flex items-center justify-center text-xs font-bold">
                   4
                 </span>
                 <span>Get instant AI feedback and scoring</span>
