@@ -1,221 +1,149 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { useThemeStore } from '../store/themeStore';
-import { Home, BrainCircuit, Video, User, LogOut, BarChart3, Moon, Sun, Sparkles } from 'lucide-react';
-import Chatbot from './Chatbot';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { LayoutDashboard, Brain, Users, FileText, User, LogOut, Sparkles } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
+import AIChatbot from './AIChatbot'
 
-export default function Layout({ children }) {
-  const { user, logout } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
-  const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default function Layout() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuthStore()
+
+  const candidateNavItems = [
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/ai-interview', icon: Brain, label: 'AI Interview' },
+    { path: '/live-interview', icon: Users, label: 'Live Interview' },
+    { path: '/resume-maker', icon: FileText, label: 'Resume' },
+    { path: '/profile', icon: User, label: 'Profile' },
+  ]
+
+  const interviewerNavItems = [
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/live-interview', icon: Users, label: 'Interviews' },
+    { path: '/profile', icon: User, label: 'Profile' },
+  ]
+
+  const navItems = user?.role === 'INTERVIEWER' ? interviewerNavItems : candidateNavItems
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+    logout()
+    navigate('/login')
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 transition-all duration-500">
-      <header className="card-glass sticky top-0 z-50 border-b border-white/20 dark:border-gray-700/20">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg sm:rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
-                  <BrainCircuit className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-              </div>
-              <span className="text-lg sm:text-2xl font-bold text-gradient">PrepForge</span>
-              <span className="badge-gradient text-xs hidden xs:inline-block">AI</span>
-            </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex space-x-1">
-              <Link
-                to="/dashboard"
-                className="flex items-center space-x-2 px-3 xl:px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300 group"
-              >
-                <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-sm xl:text-base">Dashboard</span>
-              </Link>
-              <Link
-                to="/ai-interview"
-                className="flex items-center space-x-2 px-3 xl:px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300 group"
-              >
-                <BrainCircuit className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-sm xl:text-base">AI Interview</span>
-              </Link>
-              <Link
-                to="/live-interview"
-                className="flex items-center space-x-2 px-3 xl:px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300 group"
-              >
-                <Video className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-sm xl:text-base">
-                  {user?.role === 'INTERVIEWER' ? 'Requests' : 'Schedule'}
-                </span>
-              </Link>
-              {user?.role === 'ADMIN' && (
-                <Link
-                  to="/admin"
-                  className="flex items-center space-x-2 px-3 xl:px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300 group"
-                >
-                  <BarChart3 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium text-sm xl:text-base">Admin</span>
-                </Link>
-              )}
-            </nav>
-
-            {/* Right Side Actions */}
-            <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
-              {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-105 transition-all duration-300"
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
-                ) : (
-                  <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
-                )}
-              </button>
-              
-              {/* Profile Link - Desktop */}
-              <Link
-                to="/profile"
-                className="hidden sm:flex items-center space-x-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 group"
-              >
-                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0">
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                </div>
-                <span className="hidden lg:inline font-medium text-gray-900 dark:text-white text-sm">
-                  {user?.firstName}
-                </span>
-              </Link>
-              
-              {/* Logout - Desktop */}
-              <button
-                onClick={handleLogout}
-                className="hidden sm:flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
-              >
-                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden lg:inline font-medium text-sm">Logout</span>
-              </button>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all"
-                aria-label="Toggle menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {mobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
+      {/* Sidebar */}
+      <motion.aside
+        initial={{ x: -300, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 fixed h-full z-10 hidden lg:block"
+      >
+        <div className="p-6">
+          <Link to="/dashboard" className="flex items-center gap-2 mb-8 group">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
-          </div>
+            <span className="text-2xl font-bold gradient-text">PrepForge</span>
+          </Link>
 
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-white/20 dark:border-gray-700/20 animate-fade-in">
-              <nav className="flex flex-col space-y-2">
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all"
+          <nav className="space-y-2">
+            {navItems.map((item, index) => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.path
+              return (
+                <motion.div
+                  key={item.path}
+                  initial={{ x: -50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <Home className="w-5 h-5" />
-                  <span className="font-medium">Dashboard</span>
-                </Link>
-                <Link
-                  to="/ai-interview"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all"
-                >
-                  <BrainCircuit className="w-5 h-5" />
-                  <span className="font-medium">AI Interview</span>
-                </Link>
-                <Link
-                  to="/live-interview"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all"
-                >
-                  <Video className="w-5 h-5" />
-                  <span className="font-medium">
-                    {user?.role === 'INTERVIEWER' ? 'Requests' : 'Schedule'}
-                  </span>
-                </Link>
-                {user?.role === 'ADMIN' && (
                   <Link
-                    to="/admin"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all"
+                    to={item.path}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
+                      isActive
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/25'
+                        : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    }`}
                   >
-                    <BarChart3 className="w-5 h-5" />
-                    <span className="font-medium">Admin</span>
+                    <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                      isActive ? 'text-white' : 'text-gray-400'
+                    }`} />
+                    <span className="font-medium">{item.label}</span>
                   </Link>
-                )}
-                <Link
-                  to="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex sm:hidden items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all"
-                >
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Profile</span>
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex sm:hidden items-center space-x-3 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-left"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Logout</span>
-                </button>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
+                </motion.div>
+              )
+            })}
+          </nav>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 relative">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-48 sm:w-72 h-48 sm:h-72 bg-purple-500/10 rounded-full blur-3xl float-animation"></div>
-          <div className="absolute bottom-20 right-10 w-64 sm:w-96 h-64 sm:h-96 bg-pink-500/10 rounded-full blur-3xl float-animation" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-blue-500/10 rounded-full blur-3xl float-animation" style={{ animationDelay: '4s' }}></div>
+          <motion.div 
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="absolute bottom-6 left-6 right-6"
+          >
+            <div className="glass-card p-4 mb-4">
+              <p className="text-sm text-gray-400">Logged in as</p>
+              <p className="font-semibold text-white">{user?.firstName} {user?.lastName}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
+            </div>
+            <motion.button 
+              onClick={handleLogout} 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-secondary w-full flex items-center justify-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </motion.button>
+          </motion.div>
         </div>
-        
-        <div className="relative z-10">
-          {children}
+      </motion.aside>
+
+      {/* Mobile Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/10 border-t border-white/20">
+        <div className="flex justify-around py-2">
+          {navItems.slice(0, 4).map((item, index) => {
+            const Icon = item.icon
+            const isActive = location.pathname === item.path
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                  isActive
+                    ? 'text-purple-400'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-xs">{item.label}</span>
+              </Link>
+            )
+          })}
         </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64 p-4 lg:p-8 relative z-10 pb-20 lg:pb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Outlet />
+        </motion.div>
       </main>
 
-      {user?.role === 'CANDIDATE' && <Chatbot />}
-
-      <footer className="card-glass border-t border-white/20 dark:border-gray-700/20 mt-auto">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
-            <p className="text-center sm:text-left text-gray-600 dark:text-gray-400 text-xs sm:text-sm flex items-center gap-2">
-              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500" />
-              © 2025 PrepForge. Powered by AI
-            </p>
-            <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              <span className="px-2 sm:px-3 py-1 rounded-full bg-green-500/20 text-green-600 dark:text-green-400 font-medium">
-                ● Online
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* AI Chatbot */}
+      <AIChatbot />
     </div>
-  );
+  )
 }

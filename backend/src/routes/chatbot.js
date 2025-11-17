@@ -18,35 +18,52 @@ router.post(
   validate,
   async (req, res, next) => {
     try {
-      const { message, context } = req.body;
+      const { message, context, userStats } = req.body;
 
-      // Generate chatbot prompt
-      const prompt = generateChatbotPrompt(message, context || 'interview_preparation');
-
-      // Get AI response
-      let response = '';
-      try {
-        response = await aiService.generateCompletion(prompt, {
-          temperature: 0.8,
-          maxTokens: 500,
-        });
-      } catch (aiError) {
-        console.error('Chatbot AI error:', aiError);
-        // Provide fallback response
-        response = `I understand you're asking about: "${message}". 
-        
-I'm here to help with:
-• Interview preparation strategies
-• Resume and portfolio tips
-• Technical concept explanations
-• Platform feature guidance
-• Career advice
-
-Could you please rephrase your question or let me know which specific area you'd like help with?`;
+      // Build user stats context if provided
+      let statsContext = '';
+      if (userStats) {
+        statsContext = `\n\nUser's Current Statistics:
+- Total AI Interviews: ${userStats.totalAIInterviews || 0}
+- Total Live Interviews: ${userStats.totalLiveInterviews || 0}
+- Average AI Score: ${userStats.averageScore || 'N/A'}%
+- Recent Performance: ${userStats.recentPerformance || 'No data yet'}
+- Completed Interviews: ${userStats.completedInterviews || 0}
+- Pending Interviews: ${userStats.pendingInterviews || 0}`;
       }
 
+      // Generate custom PrepForge chatbot prompt
+      const systemContext = `You are PrepForge AI Assistant, an intelligent chatbot for PrepForge - an AI-powered interview preparation platform.
+
+About PrepForge:
+- AI Mock Interviews: Practice with AI interviewer, get instant feedback on answers
+- Live Video Interviews: Real-time interviews with experienced professionals
+- Resume Analysis: AI-powered resume optimization and ATS scoring
+- Interactive Dashboard: Track progress and performance analytics
+- Real-time Chat: Communication during live interviews
+- Voice Recognition: Answer questions via voice or text${statsContext}
+
+Your role:
+- Help users with interview preparation tips and strategies
+- Explain PrepForge features and how to use them
+- Provide career guidance and resume advice
+- Answer technical interview questions
+- Give feedback on interview techniques
+- Answer questions about their statistics and progress
+- Be friendly, professional, and encouraging
+
+User question: ${message}
+
+Provide a helpful, concise response (2-3 paragraphs max). If they ask about their stats, use the data provided above:`;
+
+      // Get AI response from Gemini
+      const response = await aiService.generateCompletion(systemContext, {
+        temperature: 0.8,
+        maxTokens: 500,
+      });
+
       res.json({
-        response,
+        response: response.trim(),
         timestamp: new Date().toISOString(),
       });
     } catch (error) {

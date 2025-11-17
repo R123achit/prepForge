@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import InterviewWebSocketHandler from './services/wsInterview.js';
 import connectDB from './config/database.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
@@ -133,13 +134,20 @@ io.on('connection', (socket) => {
   socket.on('join-room', ({ roomId, userId, userName }) => {
     console.log(`${userName} (${userId}) joining room: ${roomId}`);
     
-    // Disconnect old socket for this user if exists
+    // Check if user already has a socket in this room
     if (userSockets.has(userId)) {
       const oldSocketId = userSockets.get(userId);
       const oldSocket = io.sockets.sockets.get(oldSocketId);
-      if (oldSocket && oldSocketId !== socket.id) {
-        console.log(`⚠️ Disconnecting old socket ${oldSocketId} for user ${userId}`);
-        oldSocket.disconnect(true);
+      
+      // Only disconnect if it's a different socket AND it's actually connected
+      if (oldSocket && oldSocketId !== socket.id && oldSocket.connected) {
+        console.log(`⚠️ User ${userId} reconnecting - gracefully closing old socket ${oldSocketId}`);
+        // Don't force disconnect - let it close gracefully
+        oldSocket.leave(roomId);
+        // Remove from room tracking
+        if (rooms.has(roomId)) {
+          rooms.get(roomId).delete(oldSocketId);
+        }
       }
     }
     
@@ -173,8 +181,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('ice-candidate', ({ roomId, candidate, targetSocketId }) => {
-    console.log(`Sending ICE candidate in room ${roomId} to ${targetSocketId}`);
-    socket.to(targetSocketId).emit('ice-candidate', { candidate, socketId: socket.id });
+    console.log(`Sending ICE candidate in room ${roomId}`);
+    if (targetSocketId) {
+      socket.to(targetSocketId).emit('ice-candidate', { candidate, socketId: socket.id });
+    } else {
+      socket.to(roomId).emit('ice-candidate', { candidate, socketId: socket.id });
+    }
   });
 
   socket.on('chat-message', ({ roomId, message, userName, senderId }) => {
@@ -203,6 +215,15 @@ io.on('connection', (socket) => {
       }
     });
   });
+});
+
+// Socket.IO namespace for AI interviews
+const interviewNamespace = io.of('/interview');
+const interviewHandler = new InterviewWebSocketHandler();
+
+interviewNamespace.on('connection', (socket) => {
+  console.log('AI Interview client connected:', socket.id);
+  interviewHandler.handleConnection(socket);
 });
 
 // Start server

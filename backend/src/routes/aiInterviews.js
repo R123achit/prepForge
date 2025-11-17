@@ -15,6 +15,8 @@ import {
 
 const router = express.Router();
 
+
+
 // Create AI Interview
 router.post(
   '/',
@@ -40,10 +42,15 @@ router.post(
         5
       );
 
+      console.log('🤖 Generating questions with prompt:', questionsPrompt);
+      
       let questions = [];
       try {
         const aiResponse = await aiService.generateCompletion(questionsPrompt);
+        console.log('🤖 AI Response received:', aiResponse);
+        
         const parsedQuestions = aiService.parseJSONResponse(aiResponse);
+        console.log('🤖 Parsed questions:', parsedQuestions);
         
         if (parsedQuestions && Array.isArray(parsedQuestions)) {
           questions = parsedQuestions.map((q, index) => ({
@@ -55,30 +62,14 @@ router.post(
             order: index + 1,
             timeAsked: new Date(),
           }));
+          console.log('✅ Successfully generated', questions.length, 'questions from AI');
+        } else {
+          console.log('❌ AI response could not be parsed as questions array');
+          throw new Error('Invalid AI response format');
         }
       } catch (aiError) {
-        console.error('AI question generation failed:', aiError.message);
-        // Fallback to default questions
-        questions = [
-          {
-            questionText: `Tell me about your experience with ${topic}`,
-            questionType: 'OPEN_ENDED',
-            expectedAnswer: 'Candidate should discuss relevant experience and projects',
-            difficulty: difficulty || 'MEDIUM',
-            topic,
-            order: 1,
-            timeAsked: new Date(),
-          },
-          {
-            questionText: `What are the key concepts in ${topic}?`,
-            questionType: 'TECHNICAL',
-            expectedAnswer: 'Should cover fundamental concepts',
-            difficulty: difficulty || 'MEDIUM',
-            topic,
-            order: 2,
-            timeAsked: new Date(),
-          },
-        ];
+        console.error('❌ AI question generation failed:', aiError.message);
+        throw new Error(`Failed to generate AI questions: ${aiError.message}`);
       }
 
       // Create interview
@@ -162,7 +153,7 @@ router.post(
   protect,
   [
     param('id').isMongoId(),
-    body('questionId').isMongoId().withMessage('Question ID is required'),
+    body('questionId').notEmpty().withMessage('Question ID is required'),
     body('responseText').notEmpty().withMessage('Response text is required'),
     body('responseTime').optional().isInt({ min: 0 }),
   ],
@@ -184,8 +175,17 @@ router.post(
         return res.status(400).json({ error: 'Interview already completed' });
       }
 
-      // Find the question
-      const question = interview.questions.id(questionId);
+      // Find the question by ID or index
+      let question;
+      if (questionId.startsWith('question_')) {
+        // Handle index-based question ID
+        const questionIndex = parseInt(questionId.split('_')[1]);
+        question = interview.questions[questionIndex];
+      } else {
+        // Handle MongoDB ObjectId
+        question = interview.questions.id(questionId);
+      }
+      
       if (!question) {
         return res.status(404).json({ error: 'Question not found' });
       }

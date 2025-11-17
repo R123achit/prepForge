@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    specialization: {
+      type: String,
+      default: 'General',
+    },
     // Interviewer-specific fields
     rating: {
       type: Number,
@@ -109,6 +113,7 @@ userSchema.methods.toJSON = function () {
     profileImage: user.profileImage,
     bio: user.bio,
     skills: user.skills,
+    specialization: user.specialization,
     rating: user.rating,
     createdAt: user.createdAt,
   };

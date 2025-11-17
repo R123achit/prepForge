@@ -1,92 +1,37 @@
-import axios from 'axios';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
 
-// AI Service using Groq API (you can switch to OpenAI if needed)
+// AI Service using Google Gemini API
 class AIService {
   constructor() {
-    this.groqApiKey = process.env.GROQ_API_KEY?.trim();
-    this.openaiApiKey = process.env.OPENAI_API_KEY?.trim();
+    this.geminiApiKey = process.env.GEMINI_API_KEY?.trim();
+    this.genAI = this.geminiApiKey ? new GoogleGenerativeAI(this.geminiApiKey) : null;
   }
 
   async generateCompletion(prompt, options = {}) {
-    try {
-      // Prioritize OpenAI, then Groq
-      if (this.openaiApiKey && this.openaiApiKey.trim()) {
-        return await this.openaiCompletion(prompt, options);
-      } else if (this.groqApiKey && this.groqApiKey.trim()) {
-        return await this.groqCompletion(prompt, options);
-      } else {
-        // Fallback mock response if no API keys configured
-        console.warn('⚠️  No AI API keys configured. Using intelligent mock responses.');
-        return this.mockCompletion(prompt);
-      }
-    } catch (error) {
-      console.error('AI Service Error:', error.response?.data || error.message);
-      // Fallback to mock on API errors
-      console.warn('⚠️  Falling back to mock responses due to API error');
-      return this.mockCompletion(prompt);
+    console.log('🤖 AI Service called with prompt length:', prompt.length);
+    
+    if (!this.genAI || !this.geminiApiKey) {
+      throw new Error('Gemini API key is required for AI question generation');
     }
+    
+    console.log('🚀 Calling Gemini API...');
+    const result = await this.geminiCompletion(prompt, options);
+    console.log('✅ Gemini API response received, length:', result.length);
+    return result;
   }
 
-  async groqCompletion(prompt, options = {}) {
-    const response = await axios.post(
-      'https://api.groq.com/openai/v1/chat/completions',
-      {
-        model: options.model || 'mixtral-8x7b-32768',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful AI interview assistant. Provide clear, professional, and accurate responses.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        temperature: options.temperature || 0.7,
-        max_tokens: options.maxTokens || 2000,
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${this.groqApiKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+  async geminiCompletion(prompt, options = {}) {
+    const model = this.genAI.getGenerativeModel({ 
+      model: 'gemini-2.0-flash'
+    });
 
-    return response.data.choices[0].message.content;
-  }
-
-  async openaiCompletion(prompt, options = {}) {
-    const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        model: options.model || 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful AI interview assistant. Provide clear, professional, and accurate responses.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        temperature: options.temperature || 0.7,
-        max_tokens: options.maxTokens || 2000,
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${this.openaiApiKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    return response.data.choices[0].message.content;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
   }
 
   // Mock completion for development/testing
@@ -204,24 +149,124 @@ What would you like to know more about? Feel free to ask me anything!`;
     }
     
     if (prompt.includes('Generate') && prompt.includes('questions')) {
-      // Mock interview questions
-      return JSON.stringify([
-        {
-          questionText: "Can you explain the concept of closures in JavaScript?",
-          expectedAnswer: "A closure is a function that has access to variables in its outer scope, even after the outer function has returned.",
-          keyPoints: ["Function scope", "Lexical environment", "Practical use cases"]
-        },
-        {
-          questionText: "What is the difference between let, const, and var?",
-          expectedAnswer: "var is function-scoped and hoisted, let and const are block-scoped, const cannot be reassigned.",
-          keyPoints: ["Scope differences", "Hoisting behavior", "Reassignment rules"]
-        },
-        {
-          questionText: "Explain the concept of promises in JavaScript.",
-          expectedAnswer: "Promises represent the eventual completion or failure of an asynchronous operation.",
-          keyPoints: ["Async programming", "Then/catch chains", "Promise states"]
+      // Extract interview type and topic from prompt
+      const lowerPrompt = prompt.toLowerCase();
+      let questions = [];
+      
+      if (lowerPrompt.includes('technical') || lowerPrompt.includes('coding')) {
+        if (lowerPrompt.includes('javascript') || lowerPrompt.includes('react')) {
+          questions = [
+            {
+              questionText: "Can you explain the concept of closures in JavaScript?",
+              expectedAnswer: "A closure is a function that has access to variables in its outer scope, even after the outer function has returned.",
+              keyPoints: ["Function scope", "Lexical environment", "Practical use cases"]
+            },
+            {
+              questionText: "What is the difference between let, const, and var?",
+              expectedAnswer: "var is function-scoped and hoisted, let and const are block-scoped, const cannot be reassigned.",
+              keyPoints: ["Scope differences", "Hoisting behavior", "Reassignment rules"]
+            },
+            {
+              questionText: "How does React's virtual DOM work?",
+              expectedAnswer: "Virtual DOM is a JavaScript representation of the real DOM that React uses to optimize updates.",
+              keyPoints: ["Diffing algorithm", "Performance optimization", "Reconciliation"]
+            }
+          ];
+        } else if (lowerPrompt.includes('python') || lowerPrompt.includes('data')) {
+          questions = [
+            {
+              questionText: "Explain the difference between lists and tuples in Python.",
+              expectedAnswer: "Lists are mutable and use square brackets, tuples are immutable and use parentheses.",
+              keyPoints: ["Mutability", "Performance", "Use cases"]
+            },
+            {
+              questionText: "What is a decorator in Python?",
+              expectedAnswer: "A decorator is a function that modifies the behavior of another function without changing its code.",
+              keyPoints: ["Higher-order functions", "@ syntax", "Common use cases"]
+            },
+            {
+              questionText: "How do you handle exceptions in Python?",
+              expectedAnswer: "Use try-except blocks to catch and handle exceptions gracefully.",
+              keyPoints: ["Try-except syntax", "Exception types", "Finally block"]
+            }
+          ];
+        } else {
+          questions = [
+            {
+              questionText: "What is the time complexity of binary search?",
+              expectedAnswer: "O(log n) because we eliminate half of the search space in each iteration.",
+              keyPoints: ["Divide and conquer", "Sorted array requirement", "Logarithmic complexity"]
+            },
+            {
+              questionText: "Explain the difference between stack and queue.",
+              expectedAnswer: "Stack follows LIFO (Last In First Out), queue follows FIFO (First In First Out).",
+              keyPoints: ["Data structure operations", "Use cases", "Implementation"]
+            },
+            {
+              questionText: "What is object-oriented programming?",
+              expectedAnswer: "OOP is a programming paradigm based on objects that contain data and methods.",
+              keyPoints: ["Encapsulation", "Inheritance", "Polymorphism"]
+            }
+          ];
         }
-      ]);
+      } else if (lowerPrompt.includes('behavioral') || lowerPrompt.includes('hr')) {
+        questions = [
+          {
+            questionText: "Tell me about a time you faced a challenging problem at work.",
+            expectedAnswer: "Use the STAR method to describe a specific situation, task, action, and result.",
+            keyPoints: ["STAR method", "Problem-solving skills", "Specific examples"]
+          },
+          {
+            questionText: "Describe a situation where you had to work with a difficult team member.",
+            expectedAnswer: "Focus on communication, understanding different perspectives, and finding solutions.",
+            keyPoints: ["Conflict resolution", "Communication skills", "Team collaboration"]
+          },
+          {
+            questionText: "Where do you see yourself in 5 years?",
+            expectedAnswer: "Show career growth aligned with the company's opportunities and your skills development.",
+            keyPoints: ["Career goals", "Company alignment", "Skill development"]
+          }
+        ];
+      } else if (lowerPrompt.includes('system_design') || lowerPrompt.includes('system design')) {
+        questions = [
+          {
+            questionText: "Design a URL shortening service like bit.ly.",
+            expectedAnswer: "Consider database design, caching, load balancing, and scalability requirements.",
+            keyPoints: ["Database schema", "Caching strategy", "Scalability"]
+          },
+          {
+            questionText: "How would you design a chat application?",
+            expectedAnswer: "Consider real-time messaging, user management, message storage, and notification systems.",
+            keyPoints: ["WebSocket connections", "Message queuing", "Database design"]
+          },
+          {
+            questionText: "Design a social media feed system.",
+            expectedAnswer: "Consider user relationships, content ranking, caching, and real-time updates.",
+            keyPoints: ["Feed generation", "Ranking algorithms", "Caching strategies"]
+          }
+        ];
+      } else {
+        // Default technical questions
+        questions = [
+          {
+            questionText: "Tell me about yourself and your background.",
+            expectedAnswer: "Provide a concise overview of your experience, skills, and what you're looking for.",
+            keyPoints: ["Professional summary", "Key achievements", "Career goals"]
+          },
+          {
+            questionText: "What interests you about this role?",
+            expectedAnswer: "Connect your skills and interests to the specific role and company.",
+            keyPoints: ["Role alignment", "Company research", "Career growth"]
+          },
+          {
+            questionText: "What is your greatest strength?",
+            expectedAnswer: "Choose a strength relevant to the role and provide specific examples.",
+            keyPoints: ["Relevant skills", "Specific examples", "Impact on work"]
+          }
+        ];
+      }
+      
+      return JSON.stringify(questions);
     } else if (prompt.includes('Evaluate this interview response')) {
       // Mock response evaluation
       return JSON.stringify({

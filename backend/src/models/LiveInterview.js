@@ -16,7 +16,7 @@ const liveInterviewSchema = new mongoose.Schema(
     },
     interviewType: {
       type: String,
-      enum: ['TECHNICAL', 'HR', 'APTITUDE', 'BEHAVIORAL', 'DOMAIN_SPECIFIC', 'CODING', 'SYSTEM_DESIGN'],
+      enum: ['TECHNICAL', 'HR', 'APTITUDE', 'BEHAVIORAL', 'DOMAIN_SPECIFIC', 'CODING', 'SYSTEM_DESIGN', 'GENERAL'],
       required: true,
     },
     topic: {
@@ -58,6 +58,10 @@ const liveInterviewSchema = new mongoose.Schema(
     },
     feedback: mongoose.Schema.Types.Mixed,
     analytics: mongoose.Schema.Types.Mixed,
+    isQuickConnect: {
+      type: Boolean,
+      default: false,
+    },
     startedAt: Date,
     completedAt: Date,
   },
@@ -85,6 +89,7 @@ liveInterviewSchema.methods.toJSON = function () {
     score: interview.score,
     feedback: interview.feedback,
     analytics: interview.analytics,
+    isQuickConnect: interview.isQuickConnect,
     startedAt: interview.startedAt,
     completedAt: interview.completedAt,
     createdAt: interview.createdAt,

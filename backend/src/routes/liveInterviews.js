@@ -8,24 +8,35 @@ import { generateRoomId } from '../utils/helpers.js';
 
 const router = express.Router();
 
-// Create/Schedule Live Interview (Candidates only)
+// Debug route - no auth required
+router.get('/debug', (req, res) => {
+  res.json({ message: 'Live interviews route is working!', timestamp: new Date() });
+});
+
+// Create/Schedule Live Interview (Candidates and Interviewers)
 router.post(
   '/',
   protect,
-  authorize('CANDIDATE'),
+  authorize('CANDIDATE', 'INTERVIEWER'),
   [
     body('interviewType')
-      .isIn(['TECHNICAL', 'HR', 'APTITUDE', 'BEHAVIORAL', 'DOMAIN_SPECIFIC', 'CODING', 'SYSTEM_DESIGN'])
+      .isIn(['TECHNICAL', 'HR', 'APTITUDE', 'BEHAVIORAL', 'DOMAIN_SPECIFIC', 'CODING', 'SYSTEM_DESIGN', 'GENERAL'])
       .withMessage('Invalid interview type'),
     body('topic').notEmpty().withMessage('Topic is required'),
     body('scheduledAt').isISO8601().withMessage('Valid scheduled date is required'),
     body('duration').isInt({ min: 30, max: 180 }).withMessage('Duration must be between 30 and 180 minutes'),
-    body('interviewerId').optional().isMongoId().withMessage('Invalid interviewer ID'),
+    body('interviewerId').optional().custom((value) => {
+      if (value && !value.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new Error('Invalid interviewer ID');
+      }
+      return true;
+    }),
+    body('interviewerEmail').optional().isEmail().withMessage('Invalid interviewer email'),
   ],
   validate,
   async (req, res, next) => {
     try {
-      const { interviewType, topic, scheduledAt, duration, interviewerId, difficulty } = req.body;
+      const { interviewType, topic, scheduledAt, duration, interviewerId, interviewerEmail, difficulty } = req.body;
 
       // Validate scheduled time is in the future
       const scheduledDate = new Date(scheduledAt);
@@ -33,9 +44,20 @@ router.post(
         return res.status(400).json({ error: 'Scheduled time must be in the future' });
       }
 
-      // If interviewer specified, verify they exist and have correct role
-      if (interviewerId) {
-        const interviewer = await User.findById(interviewerId);
+      let finalInterviewerId = interviewerId;
+
+      // If interviewer specified by email, find them
+      if (interviewerEmail && !interviewerId) {
+        const interviewer = await User.findOne({ email: interviewerEmail, role: 'INTERVIEWER' });
+        if (!interviewer) {
+          return res.status(404).json({ error: 'Interviewer not found with this email' });
+        }
+        finalInterviewerId = interviewer._id;
+      }
+
+      // If interviewer specified by ID, verify they exist and have correct role
+      if (finalInterviewerId) {
+        const interviewer = await User.findById(finalInterviewerId);
         if (!interviewer) {
           return res.status(404).json({ error: 'Interviewer not found' });
         }
@@ -48,7 +70,7 @@ router.post(
       const roomId = generateRoomId();
       const interview = await LiveInterview.create({
         candidateId: req.user._id,
-        interviewerId: interviewerId || null,
+        interviewerId: finalInterviewerId || null,
         interviewType,
         topic,
         difficulty: difficulty || 'MEDIUM',
@@ -66,7 +88,7 @@ router.post(
 
       // Populate candidate and interviewer info
       await interview.populate('candidateId', 'firstName lastName email profileImage');
-      if (interviewerId) {
+      if (finalInterviewerId) {
         await interview.populate('interviewerId', 'firstName lastName email profileImage');
       }
 
@@ -79,6 +101,84 @@ router.post(
     }
   }
 );
+
+// Quick connect with interviewer by email
+router.post('/quick-connect', protect, authorize('CANDIDATE'), [
+  body('interviewerEmail').isEmail().withMessage('Valid interviewer email is required')
+], validate, async (req, res, next) => {
+  try {
+    const { interviewerEmail } = req.body;
+
+    // Find interviewer by email
+    const interviewer = await User.findOne({ 
+      email: interviewerEmail, 
+      role: 'INTERVIEWER' 
+    });
+
+    if (!interviewer) {
+      return res.status(404).json({ error: 'Interviewer not found with this email' });
+    }
+
+    // Create instant interview session
+    const roomId = generateRoomId();
+    const interview = await LiveInterview.create({
+      candidateId: req.user._id,
+      interviewerId: interviewer._id,
+      interviewType: 'GENERAL',
+      topic: 'Quick Connect Session',
+      difficulty: 'MEDIUM',
+      scheduledAt: new Date(),
+      duration: 60,
+      status: 'SCHEDULED',
+      roomId: roomId,
+      meetingUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/interview-room/${roomId}`,
+      isQuickConnect: true
+    });
+
+    res.status(201).json({
+      message: 'Quick connect session created',
+      roomId: roomId,
+      interview: interview.toJSON()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get available interviewers (MUST be before /:id route)
+router.get('/interviewers', protect, async (req, res, next) => {
+  try {
+    console.log('📋 Fetching interviewers for user:', req.user?.email);
+    
+    // First check if any users exist
+    const totalUsers = await User.countDocuments();
+    console.log('📋 Total users in DB:', totalUsers);
+    
+    const interviewers = await User.find({ 
+      role: 'INTERVIEWER'
+    }).select('firstName lastName email specialization profileImage');
+    
+    console.log('📋 Found interviewers:', interviewers.length);
+    console.log('📋 Interviewer emails:', interviewers.map(i => i.email));
+    
+    res.json({ 
+      interviewers,
+      total: interviewers.length,
+      debug: {
+        totalUsers,
+        requestUser: req.user?.email
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching interviewers:', error);
+    res.status(500).json({ error: 'Failed to fetch interviewers', details: error.message });
+  }
+});
+
+// Test endpoint
+router.get('/test', (req, res) => {
+  res.json({ message: 'Live interviews route working', timestamp: new Date() });
+});
 
 // Get live interviews (role-based)
 router.get('/', protect, async (req, res, next) => {

@@ -1,154 +1,70 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from './store/authStore';
-import Layout from './components/Layout';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import AIInterviewPage from './pages/AIInterviewPage';
-import LiveInterviewPage from './pages/LiveInterviewPage';
-import InterviewRoomPage from './pages/InterviewRoomPage';
-import AIInterviewRoomPage from './pages/AIInterviewRoomPage';
-import InterviewFeedbackPage from './pages/InterviewFeedbackPage';
-import ResumeMakerPage from './pages/ResumeMakerPage';
-import ResumeMatcherPage from './pages/ResumeMatcherPage';
-import ProfilePage from './pages/ProfilePage';
-import PaymentPage from './pages/PaymentPage';
-import AdminPage from './pages/AdminPage';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { useAuthStore } from './store/authStore'
 
-function App() {
-  const { isAuthenticated, user } = useAuthStore();
+// Pages
+import Landing from './pages/Landing'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Dashboard from './pages/Dashboard'
+import InterviewerDashboard from './pages/InterviewerDashboard'
+import AIInterview from './pages/AIInterview'
+import AIInterviewSession from './pages/AIInterviewSession'
+import LiveInterview from './pages/LiveInterview'
+import InterviewerLiveInterview from './pages/InterviewerLiveInterview'
+import InterviewRoom from './pages/InterviewRoom'
+import InterviewVideo from './pages/InterviewVideo'
+import ResumeMaker from './pages/ResumeMaker'
+import ResumeBuilder from './pages/ResumeBuilder'
+import Profile from './pages/Profile'
+import NotFound from './pages/NotFound'
 
-  return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+// Layout
+import Layout from './components/Layout'
 
-      <Route
-        path="/dashboard"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <DashboardPage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/ai-interview"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <AIInterviewPage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/live-interview"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <LiveInterviewPage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/interview-room/:id"
-        element={
-          isAuthenticated ? <InterviewRoomPage /> : <Navigate to="/login" />
-        }
-      />
-      <Route
-        path="/ai-interview-room/:id"
-        element={
-          isAuthenticated ? <AIInterviewRoomPage /> : <Navigate to="/login" />
-        }
-      />
-      <Route
-        path="/interview-feedback/:id"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <InterviewFeedbackPage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/resume-maker"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <ResumeMakerPage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/resume-matcher"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <ResumeMatcherPage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <ProfilePage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/payment"
-        element={
-          isAuthenticated ? (
-            <Layout>
-              <PaymentPage />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/admin"
-        element={
-          isAuthenticated && user?.role === 'ADMIN' ? (
-            <Layout>
-              <AdminPage />
-            </Layout>
-          ) : (
-            <Navigate to="/dashboard" />
-          )
-        }
-      />
-
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
-  );
+function ProtectedRoute({ children }) {
+  const { user } = useAuthStore()
+  return user ? children : <Navigate to="/login" />
 }
 
-export default App;
+function DashboardRoute() {
+  const { user } = useAuthStore()
+  if (!user) return <Navigate to="/login" />
+  return user.role === 'INTERVIEWER' ? <InterviewerDashboard /> : <Dashboard />
+}
+
+function LiveInterviewRoute() {
+  const { user } = useAuthStore()
+  if (!user) return <Navigate to="/login" />
+  return user.role === 'INTERVIEWER' ? <InterviewerLiveInterview /> : <LiveInterview />
+}
+
+function App() {
+  return (
+    <Router>
+      <Toaster position="top-right" />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          <Route path="dashboard" element={<DashboardRoute />} />
+          <Route path="ai-interview" element={<AIInterview />} />
+          <Route path="live-interview" element={<LiveInterviewRoute />} />
+          <Route path="resume-maker" element={<ResumeBuilder />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
+        
+        <Route path="/ai-interview/:id" element={<ProtectedRoute><AIInterviewSession /></ProtectedRoute>} />
+        <Route path="/interview-video" element={<ProtectedRoute><InterviewVideo /></ProtectedRoute>} />
+        <Route path="/interview-room/:roomId" element={<ProtectedRoute><InterviewRoom /></ProtectedRoute>} />
+        
+        {/* 404 Route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  )
+}
+
+export default App
