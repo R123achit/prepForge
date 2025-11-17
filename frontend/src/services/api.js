@@ -22,6 +22,13 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   getProfile: () => api.get('/auth/profile'),
   updateProfile: (data) => api.put('/auth/profile', data),
+  uploadProfilePhoto: (formData) => {
+    console.log('API: Uploading profile photo...');
+    return api.post('/users/profile-photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  getProfilePhoto: (userId) => `${API_URL}/users/profile-photo/${userId}`,
 }
 
 export const dashboardAPI = {
@@ -58,6 +65,24 @@ export const resumeAPI = {
   getAll: () => api.get('/resumes'),
   getById: (id) => api.get(`/resumes/${id}`),
   delete: (id) => api.delete(`/resumes/${id}`),
+  download: (id) => {
+    const token = JSON.parse(localStorage.getItem('auth-storage'))?.state?.token
+    const url = `${API_URL}/resumes/${id}/download`
+    
+    // Create a temporary link for download
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', '')
+    
+    // Add authorization header for mobile compatibility
+    if (token) {
+      link.href = `${url}?token=${encodeURIComponent(token)}`
+    }
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  },
 }
 
 export const chatbotAPI = {

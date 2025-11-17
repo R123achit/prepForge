@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { LayoutDashboard, Brain, Users, FileText, User, LogOut, Sparkles } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import { authAPI } from '../services/api'
 import AIChatbot from './AIChatbot'
 
 export default function Layout() {
@@ -90,9 +91,28 @@ export default function Layout() {
             className="absolute bottom-6 left-6 right-6"
           >
             <div className="glass-card p-4 mb-4">
-              <p className="text-sm text-gray-400">Logged in as</p>
-              <p className="font-semibold text-white">{user?.firstName} {user?.lastName}</p>
-              <p className="text-xs text-gray-500">{user?.email}</p>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  {user?.profileImage ? (
+                    <img 
+                      src={authAPI.getProfilePhoto(user.id)} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 text-white" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-white truncate">{user?.firstName} {user?.lastName}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                </div>
+              </div>
+              <div className="text-xs text-center">
+                <span className="px-2 py-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 rounded-full border border-purple-500/30">
+                  {user?.role}
+                </span>
+              </div>
             </div>
             <motion.button 
               onClick={handleLogout} 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Calendar, Plus } from 'lucide-react'
-import { liveInterviewAPI } from '../services/api'
+import { Users, Calendar, Plus, User } from 'lucide-react'
+import { liveInterviewAPI, authAPI } from '../services/api'
 import QuickConnect from '../components/QuickConnect'
 import toast from 'react-hot-toast'
 
@@ -166,8 +166,8 @@ export default function LiveInterview() {
                     <option value="">Choose from available interviewers...</option>
                     {interviewers.length > 0 ? (
                       interviewers.map((interviewer) => (
-                        <option key={interviewer._id} value={interviewer._id}>
-                          {interviewer.firstName} {interviewer.lastName} - {interviewer.specialization || 'General'}
+                        <option key={interviewer._id || interviewer.id} value={interviewer._id || interviewer.id}>
+                          {interviewer.firstName} {interviewer.lastName} - {interviewer.specialization || 'General'} ⭐ {interviewer.rating || 0}
                         </option>
                       ))
                     ) : (
@@ -207,7 +207,23 @@ export default function LiveInterview() {
                   <div>
                     <h3 className="text-xl font-semibold mb-1">{interview.topic}</h3>
                     <p className="text-dark-400 mb-2">{interview.interviewType} • {interview.duration} minutes</p>
-                    <p className="text-primary-400 mb-2">Interviewer: {interview.interviewer?.firstName} {interview.interviewer?.lastName}</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                        {interview.interviewer?.profileImage ? (
+                          <img 
+                            src={authAPI.getProfilePhoto(interview.interviewer.id)} 
+                            alt={`${interview.interviewer.firstName} ${interview.interviewer.lastName}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              e.target.nextSibling.style.display = 'flex'
+                            }}
+                          />
+                        ) : null}
+                        <User className="w-4 h-4 text-white" style={{ display: interview.interviewer?.profileImage ? 'none' : 'flex' }} />
+                      </div>
+                      <p className="text-primary-400">Interviewer: {interview.interviewer?.firstName} {interview.interviewer?.lastName}</p>
+                    </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-4 h-4" />
                       <span>{new Date(interview.scheduledAt).toLocaleString()}</span>

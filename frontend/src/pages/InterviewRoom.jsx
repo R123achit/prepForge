@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Video, VideoOff, Mic, MicOff, MessageCircle, Phone, Users, Monitor, MonitorOff, CheckCircle } from 'lucide-react'
+import { Video, VideoOff, Mic, MicOff, MessageCircle, Phone, Users, Monitor, MonitorOff, CheckCircle, User } from 'lucide-react'
 import { io } from 'socket.io-client'
-import { liveInterviewAPI } from '../services/api'
+import { liveInterviewAPI, authAPI } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
 
@@ -21,6 +21,7 @@ export default function InterviewRoom() {
   const [newMessage, setNewMessage] = useState('')
   const [participants, setParticipants] = useState([])
   const [interview, setInterview] = useState(null)
+  const [otherParticipant, setOtherParticipant] = useState(null)
   const [showChat, setShowChat] = useState(false)
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const [screenStream, setScreenStream] = useState(null)
@@ -74,6 +75,8 @@ export default function InterviewRoom() {
             }
             return prev
           })
+          // Set other participant for profile display
+          setOtherParticipant({ userId, userName })
         }
       })
 
@@ -416,9 +419,20 @@ export default function InterviewRoom() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200 }}
-                    className="w-32 h-32 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-6 backdrop-blur-sm border border-white/20"
+                    className="w-32 h-32 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-6 backdrop-blur-sm border border-white/20 overflow-hidden"
                   >
-                    <Users className="w-16 h-16 text-white/60" />
+                    {otherParticipant ? (
+                      <img 
+                        src={authAPI.getProfilePhoto(otherParticipant.userId)} 
+                        alt={otherParticipant.userName}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none'
+                          e.target.nextSibling.style.display = 'flex'
+                        }}
+                      />
+                    ) : null}
+                    <User className="w-16 h-16 text-white/60" style={{ display: otherParticipant ? 'none' : 'block' }} />
                   </motion.div>
                   <motion.p 
                     initial={{ opacity: 0, y: 20 }}
@@ -426,7 +440,7 @@ export default function InterviewRoom() {
                     transition={{ delay: 0.3 }}
                     className="text-white text-xl font-medium mb-2"
                   >
-                    Waiting for participant...
+                    {otherParticipant ? `Connecting to ${otherParticipant.userName}...` : 'Waiting for participant...'}
                   </motion.p>
                   <motion.p 
                     initial={{ opacity: 0 }}
@@ -434,8 +448,27 @@ export default function InterviewRoom() {
                     transition={{ delay: 0.5 }}
                     className="text-gray-400"
                   >
-                    Connecting to interview room...
+                    {otherParticipant ? 'Setting up video connection...' : 'Connecting to interview room...'}
                   </motion.p>
+                </div>
+              )}
+              
+              {/* Remote participant info overlay */}
+              {remoteStream && otherParticipant && (
+                <div className="absolute top-4 left-4 glass-card px-3 py-2 flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                    <img 
+                      src={authAPI.getProfilePhoto(otherParticipant.userId)} 
+                      alt={otherParticipant.userName}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                        e.target.nextSibling.style.display = 'flex'
+                      }}
+                    />
+                    <User className="w-4 h-4 text-white" style={{ display: 'none' }} />
+                  </div>
+                  <span className="text-white text-sm font-medium">{otherParticipant.userName}</span>
                 </div>
               )}
             </div>
@@ -460,7 +493,18 @@ export default function InterviewRoom() {
                 <VideoOff className="w-10 h-10 text-white/60" />
               </div>
             )}
-            <div className="absolute bottom-2 left-2 glass-card px-2 py-1">
+            <div className="absolute bottom-2 left-2 glass-card px-2 py-1 flex items-center gap-1">
+              <div className="w-4 h-4 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                {user?.profileImage ? (
+                  <img 
+                    src={authAPI.getProfilePhoto(user.id)} 
+                    alt="You"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-2 h-2 text-white" />
+                )}
+              </div>
               <span className="text-white text-xs font-medium">You</span>
             </div>
           </motion.div>

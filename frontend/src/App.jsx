@@ -60,8 +60,8 @@ function App() {
         <Route path="/interview-video" element={<ProtectedRoute><InterviewVideo /></ProtectedRoute>} />
         <Route path="/interview-room/:roomId" element={<ProtectedRoute><InterviewRoom /></ProtectedRoute>} />
         
-        {/* 404 Route */}
-        <Route path="*" element={<NotFound />} />
+        {/* Catch-all route for SPA */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   )

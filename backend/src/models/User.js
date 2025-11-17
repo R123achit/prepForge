@@ -115,6 +115,9 @@ userSchema.methods.toJSON = function () {
     skills: user.skills,
     specialization: user.specialization,
     rating: user.rating,
+    totalInterviewsConducted: user.totalInterviewsConducted,
+    totalAIInterviews: user.totalAIInterviews,
+    totalLiveInterviews: user.totalLiveInterviews,
     createdAt: user.createdAt,
   };
 };

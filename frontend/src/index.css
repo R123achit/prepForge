@@ -11,6 +11,11 @@
     @apply bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white antialiased;
     min-height: 100vh;
   }
+  
+  /* Ensure mobile compatibility */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @layer components {
@@ -40,6 +45,17 @@
   
   .neon-glow {
     box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+  
+  /* Mobile download helper */
+  .mobile-download-hint {
+    @apply hidden;
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-download-hint {
+      @apply block text-sm text-gray-400 mt-2;
+    }
   }
 }
 
@@ -81,4 +97,43 @@
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradient-shift 8s ease-in-out infinite;
+}
+
+/* Mobile-friendly print styles */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  #resume-preview {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .glass-card, .card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .btn-primary, .btn-secondary, button {
+    display: none !important;
+  }
+  
+  @page {
+    margin: 0.5in;
+    size: A4;
+  }
 }

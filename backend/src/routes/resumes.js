@@ -220,6 +220,56 @@ router.get('/:id', protect, param('id').isMongoId(), validate, async (req, res, 
   }
 });
 
+// Download resume file
+router.get('/:id/download', param('id').isMongoId(), validate, async (req, res, next) => {
+  try {
+    // Handle token from query parameter for mobile compatibility
+    let user;
+    const token = req.query.token || req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    try {
+      const jwt = await import('jsonwebtoken');
+      const decoded = jwt.default.verify(token, process.env.JWT_SECRET);
+      const User = (await import('../models/User.js')).default;
+      user = await User.findById(decoded.id).select('-password');
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+    } catch (authError) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    const resume = await Resume.findOne({
+      _id: req.params.id,
+      userId: user._id,
+    });
+
+    if (!resume) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+
+    if (!fs.existsSync(resume.filePath)) {
+      return res.status(404).json({ error: 'Resume file not found' });
+    }
+
+    const fileName = resume.fileName || `resume-${resume._id}.pdf`;
+    
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    
+    const fileStream = fs.createReadStream(resume.filePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Delete resume
 router.delete('/:id', protect, param('id').isMongoId(), validate, async (req, res, next) => {
   try {

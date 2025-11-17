@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Calendar, CheckCircle, Clock } from 'lucide-react'
-import { liveInterviewAPI } from '../services/api'
+import { Users, Calendar, CheckCircle, Clock, User } from 'lucide-react'
+import { liveInterviewAPI, authAPI } from '../services/api'
 import toast from 'react-hot-toast'
 
 export default function InterviewerLiveInterview() {
@@ -72,9 +72,25 @@ export default function InterviewerLiveInterview() {
                   <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg lg:text-xl font-semibold mb-2 text-white truncate">{interview.topic}</h3>
-                      <p className="text-purple-400 mb-2 text-sm lg:text-base truncate">
-                        Candidate: {interview.candidate?.firstName} {interview.candidate?.lastName}
-                      </p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-6 h-6 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                          {interview.candidate?.profileImage ? (
+                            <img 
+                              src={authAPI.getProfilePhoto(interview.candidate.id)} 
+                              alt={`${interview.candidate.firstName} ${interview.candidate.lastName}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none'
+                                e.target.nextSibling.style.display = 'flex'
+                              }}
+                            />
+                          ) : null}
+                          <User className="w-3 h-3 text-white" style={{ display: interview.candidate?.profileImage ? 'none' : 'flex' }} />
+                        </div>
+                        <p className="text-purple-400 text-sm lg:text-base truncate">
+                          Candidate: {interview.candidate?.firstName} {interview.candidate?.lastName}
+                        </p>
+                      </div>
                       <p className="text-gray-400 mb-2 text-xs lg:text-sm break-words">
                         {interview.interviewType} • {interview.duration} min • {interview.difficulty}
                       </p>
