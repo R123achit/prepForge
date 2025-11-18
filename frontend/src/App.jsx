@@ -17,6 +17,9 @@ import InterviewVideo from './pages/InterviewVideo'
 import ResumeMaker from './pages/ResumeMaker'
 import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
+import JobBoard from './pages/JobBoard'
+import CalendarSync from './pages/CalendarSync'
+import CalendarCallback from './pages/CalendarCallback'
 import NotFound from './pages/NotFound'
 
 // Layout
@@ -53,12 +56,15 @@ function App() {
           <Route path="ai-interview" element={<AIInterview />} />
           <Route path="live-interview" element={<LiveInterviewRoute />} />
           <Route path="resume-maker" element={<ResumeBuilder />} />
+          <Route path="job-board" element={<JobBoard />} />
+          <Route path="calendar-sync" element={<CalendarSync />} />
           <Route path="profile" element={<Profile />} />
         </Route>
         
         <Route path="/ai-interview/:id" element={<ProtectedRoute><AIInterviewSession /></ProtectedRoute>} />
         <Route path="/interview-video" element={<ProtectedRoute><InterviewVideo /></ProtectedRoute>} />
         <Route path="/interview-room/:roomId" element={<ProtectedRoute><InterviewRoom /></ProtectedRoute>} />
+        <Route path="/calendar/callback" element={<ProtectedRoute><CalendarCallback /></ProtectedRoute>} />
         
         {/* Catch-all route for SPA */}
         <Route path="*" element={<Navigate to="/" replace />} />

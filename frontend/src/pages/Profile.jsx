@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Save, Camera, Upload } from 'lucide-react'
+import { User, Save, Camera, Upload, LogOut } from 'lucide-react'
 import { authAPI } from '../services/api'
 import { useAuthStore } from '../store/authStore'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 export default function Profile() {
-  const { user, setAuth } = useAuthStore()
+  const { user, setAuth, logout } = useAuthStore()
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -89,9 +91,9 @@ export default function Profile() {
         <div className="max-w-2xl">
           <div className="card">
             {/* Profile Photo Section */}
-            <div className="flex items-center gap-6 mb-8 pb-6 border-b border-white/10">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-8 pb-6 border-b border-white/10">
               <div className="relative">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
                   {photoPreview || user?.profileImage ? (
                     <img 
                       src={photoPreview || authAPI.getProfilePhoto(user.id)} 
@@ -99,7 +101,7 @@ export default function Profile() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-12 h-12 text-white" />
+                    <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
                   )}
                 </div>
                 {photoLoading && (
@@ -108,7 +110,7 @@ export default function Profile() {
                   </div>
                 )}
               </div>
-              <div>
+              <div className="text-center sm:text-left">
                 <h3 className="text-lg font-semibold mb-2">Profile Photo</h3>
                 <p className="text-sm text-gray-400 mb-3">Upload a photo to personalize your profile</p>
                 <label className="btn-secondary text-sm cursor-pointer">
@@ -125,7 +127,7 @@ export default function Profile() {
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">First Name</label>
                   <input
@@ -189,10 +191,20 @@ export default function Profile() {
                 />
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary">
-                <Save className="inline w-5 h-5 mr-2" />
-                {loading ? 'Saving...' : 'Save Changes'}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button type="submit" disabled={loading} className="btn-primary flex-1">
+                  <Save className="inline w-5 h-5 mr-2" />
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => { logout(); navigate('/login') }}
+                  className="btn-secondary text-red-400 hover:text-red-300 hover:bg-red-500/10 border-red-500/30"
+                >
+                  <LogOut className="inline w-5 h-5 mr-2" />
+                  Logout
+                </button>
+              </div>
             </form>
           </div>
         </div>

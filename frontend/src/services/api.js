@@ -89,4 +89,20 @@ export const chatbotAPI = {
   sendMessage: (data) => api.post('/chatbot', data),
 }
 
+export const jobBoardAPI = {
+  searchJobs: (params) => api.get('/job-board/search', { params }),
+  getLinkedInAuthUrl: () => api.get('/job-board/linkedin/auth-url'),
+  connectLinkedIn: (data) => api.post('/job-board/linkedin/callback', data),
+}
+
+export const calendarAPI = {
+  getAuthUrl: (provider) => api.get(`/calendar/${provider}/auth-url`),
+  connectGoogle: (data) => api.post('/calendar/google/callback', data),
+  getIntegrations: () => api.get('/calendar/integrations'),
+  updateSettings: (provider, settings) => api.put(`/calendar/integrations/${provider}/settings`, { settings }),
+  disconnect: (provider) => api.delete(`/calendar/integrations/${provider}`),
+  createEvent: (data) => api.post('/calendar/create-event', data),
+  checkAvailability: (data) => api.post('/calendar/check-availability', data),
+}
+
 export default api

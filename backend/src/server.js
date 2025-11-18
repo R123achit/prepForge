@@ -1,5 +1,8 @@
-import express from 'express';
+// Load environment variables FIRST before any other imports
 import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,9 +20,8 @@ import dashboardRoutes from './routes/dashboard.js';
 import resumeRoutes from './routes/resumes.js';
 import chatbotRoutes from './routes/chatbot.js';
 import userRoutes from './routes/users.js';
-
-// Load environment variables
-dotenv.config();
+import jobBoardRoutes from './routes/jobBoard.js';
+import calendarRoutes from './routes/calendar.js';
 
 // ES Module directory path helper
 const __filename = fileURLToPath(import.meta.url);
@@ -101,6 +103,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/job-board', jobBoardRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -116,6 +120,8 @@ app.get('/', (req, res) => {
       resumes: '/api/resumes',
       chatbot: '/api/chatbot',
       users: '/api/users',
+      jobBoard: '/api/job-board',
+      calendar: '/api/calendar',
     },
   });
 });
